@@ -34,11 +34,14 @@ Each consuming repo extends it from a one-line `renovate.json`:
 - **Grouping** — the shared toolchain (biome, cspell, commitlint, markdownlint,
   remark, lefthook) lands as one `dev-tooling` PR per repo; the Corepack `pnpm`
   pin is surfaced on its own.
-- **`nix: { enabled: true }`** — Renovate updates `flake.lock` inputs (including
-  the `dotfiles` input in consumers, closing the toolchain-propagation gap).
-  This runs on Mend's infra, so it works even while GitHub Actions billing is
-  blocked — unlike the dotfiles `flake-update` workflow, which it supersedes
-  once a flake PR is confirmed working on a consumer.
+- **`nix: { enabled: false }`** — the nix manager works where `nix` is reliably
+  present (self-hosted, local), but the **hosted Mend app installs `nix`
+  dynamically via containerbase** and it's documented-flaky for actually writing
+  `flake.lock` (failed `install-tool nix`, Hydra download failures, and reports
+  of it doing nothing) — which matched our own run (detected the flake,
+  `updates:[]`, no PR). So `flake.lock` updates stay with the dotfiles
+  `flake-update` workflow, which runs `nix flake update` natively in Actions.
+  Refs: renovate discussions #29706, #30620, #31807; PR #31921.
 
 ## Repo-specific carve-outs
 
