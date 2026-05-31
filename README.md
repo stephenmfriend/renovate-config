@@ -34,9 +34,11 @@ Each consuming repo extends it from a one-line `renovate.json`:
 - **Grouping** — the shared toolchain (biome, cspell, commitlint, markdownlint,
   remark, lefthook) lands as one `dev-tooling` PR per repo; the Corepack `pnpm`
   pin is surfaced on its own.
-- **`nix: { enabled: false }`** — flake input updates stay with the dotfiles
-  `flake-update` workflow for now. Flip to `true` to let Renovate take over
-  `flake.lock` and retire that workflow.
+- **`nix: { enabled: true }`** — Renovate updates `flake.lock` inputs (including
+  the `dotfiles` input in consumers, closing the toolchain-propagation gap).
+  This runs on Mend's infra, so it works even while GitHub Actions billing is
+  blocked — unlike the dotfiles `flake-update` workflow, which it supersedes
+  once a flake PR is confirmed working on a consumer.
 
 ## Repo-specific carve-outs
 
