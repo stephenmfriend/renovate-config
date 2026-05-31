@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "semanticCommits": "enabled",
+  "dependencyDashboard": true,
+  "schedule": ["before 6am on monday"],
+  "minimumReleaseAge": "5 days",
+  "nix": {
+    "enabled": false
+  },
+  "packageRules": [
+    {
+      "description": "Group the shared toolchain so each repo gets one dev-tooling PR",
+      "matchDepNames": [
+        "@biomejs/biome",
+        "biome",
+        "cspell",
+        "@commitlint/cli",
+        "@commitlint/config-conventional",
+        "markdownlint-cli2",
+        "remark-cli",
+        "lefthook"
+      ],
+      "groupName": "dev-tooling"
+    },
+    {
+      "description": "Surface Corepack pnpm pin bumps (packageManager field) on their own",
+      "matchDepTypes": ["packageManager"],
+      "groupName": "pnpm"
+    }
+  ]
+}
