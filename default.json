@@ -28,6 +28,11 @@
       "description": "Surface Corepack pnpm pin bumps (packageManager field) on their own",
       "matchDepTypes": ["packageManager"],
       "groupName": "pnpm"
+    },
+    {
+      "description": "Hold the fleet on the Node 24 major: @types/node and the node pin track it, not the latest (Node 25 is not LTS). Repos on an older Node (e.g. rc-hubspot on 20) set a tighter cap in their own renovate.json, which takes precedence.",
+      "matchDepNames": ["node", "@types/node"],
+      "allowedVersions": "<25"
     }
   ]
 }
