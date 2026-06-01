@@ -29,6 +29,16 @@ Each consuming repo extends it from a one-line `renovate.json`:
 - **`minimumReleaseAge: 5 days`** — never propose a version younger than this.
   Avoids opening PRs for packages so fresh that pnpm 11's supply-chain policy
   would reject the install (the lefthook 2.1.9 lesson).
+- **`constraintsFiltering: strict`** — honour each consumer's declared engine
+  constraints (`engines.node`, `packageManager`) when choosing candidate
+  versions. Renovate's default is `none`, which would propose pnpm 11 / Node 22+
+  to a Node-20 repo regardless of its pin; `strict` makes the preset respect the
+  cap centrally and repo-agnostically — no private repo name in the public
+  preset. The notable beneficiary is `rc-hubspot` (Node-20 for HubSpot
+  compatibility), which stays on pnpm 10.x until its pin lifts. Trade-off:
+  `strict` skips an update when a package publishes no usable engine metadata,
+  so a genuinely-compatible bump can be held back silently — acceptable for the
+  fleet's mainstream tooling, which all declares clean `engines`.
 - **`semanticCommits: enabled`** — conventional-commit PR titles, matching the
   fleet's commitlint + release-please setup.
 - **Grouping** — the shared toolchain (biome, cspell, commitlint, markdownlint,
@@ -48,5 +58,8 @@ Each consuming repo extends it from a one-line `renovate.json`:
 Anything that names a private repo lives in **that repo's own `renovate.json`**,
 never here (this preset is public). The notable case is
 `RECIPE-marketing/rc-hubspot`, which is pinned to Node 20 for HubSpot
-compatibility and therefore caps `pnpm` below 11 and Node below 21 in its own
-config.
+compatibility. With `constraintsFiltering: strict` (above), the engine cap is
+now honoured centrally from rc-hubspot's own `engines.node` — pnpm stays on 10.x
+and Node below 21 without the preset naming the repo. Any further rc-hubspot
+specifics (beyond what its `engines` field already expresses) still belong in
+its own config.
