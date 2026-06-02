@@ -41,6 +41,14 @@ Each consuming repo extends it from a one-line `renovate.json`:
   fleet's mainstream tooling, which all declares clean `engines`.
 - **`semanticCommits: enabled`** — conventional-commit PR titles, matching the
   fleet's commitlint + release-please setup.
+- **Automerge (non-major)** — `minor`/`patch`/`pin`/`digest` updates merge
+  themselves once CI is green, so routine bumps land without manual babysitting.
+  Major updates stay manual for a human look. `lockFileMaintenance` is **not**
+  automerged: CI builds each repo's `@kc/*` `file:` siblings from their own
+  `main`, not the local branch, so a wrongly-regenerated lockfile can pass CI
+  undetected — those land by hand. With no `schedule` set, Renovate creates
+  PRs on any run (still held back by `minimumReleaseAge`), so updates flow
+  continuously rather than batching into a weekly window.
 - **Grouping** — the shared toolchain (biome, cspell, commitlint, markdownlint,
   remark, lefthook) lands as one `dev-tooling` PR per repo; the Corepack `pnpm`
   pin is surfaced on its own.

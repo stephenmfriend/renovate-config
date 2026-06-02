@@ -3,7 +3,6 @@
   "extends": ["config:best-practices"],
   "semanticCommits": "enabled",
   "dependencyDashboard": true,
-  "schedule": ["before 6am on monday"],
   "minimumReleaseAge": "5 days",
   "constraintsFiltering": "strict",
   "nix": {
@@ -33,6 +32,11 @@
       "description": "Hold the fleet on the Node 24 major: @types/node and the node pin track it, not the latest (Node 25 is not LTS). Repos on an older Node (e.g. rc-hubspot on 20) set a tighter cap in their own renovate.json, which takes precedence.",
       "matchDepNames": ["node", "@types/node"],
       "allowedVersions": "<25"
+    },
+    {
+      "description": "Automerge non-major updates once CI is green. Majors stay manual for a human look. lockFileMaintenance is deliberately excluded (its updateType is not listed) because CI builds the @kc/* file: siblings from their own main, not the local branch, so a lockfile regenerated wrongly can pass CI undetected — those land manually.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "automerge": true
     }
   ]
 }
