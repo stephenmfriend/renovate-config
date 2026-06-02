@@ -39,6 +39,14 @@ Each consuming repo extends it from a one-line `renovate.json`:
   `strict` skips an update when a package publishes no usable engine metadata,
   so a genuinely-compatible bump can be held back silently — acceptable for the
   fleet's mainstream tooling, which all declares clean `engines`.
+- **`dependencyDashboardApproval: false`** — Renovate creates each update's
+  branch/PR on its own, no per-update tick on the Dependency Dashboard. This is
+  an explicit override: the Mend Renovate Cloud portal had approval switched on
+  at the org level, which parked every update under "Pending Approval" and meant
+  nothing was created until a human checked the box. Repo/preset config wins over
+  Mend's inherited org config, so setting it `false` here re-enables hands-free
+  creation fleet-wide. (Renovate's own default is already `false`; this guards
+  against the portal default.)
 - **`semanticCommits: enabled`** — conventional-commit PR titles, matching the
   fleet's commitlint + release-please setup.
 - **Automerge (non-major)** — `minor`/`patch`/`pin`/`digest` updates merge
