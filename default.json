@@ -11,6 +11,24 @@
   },
   "packageRules": [
     {
+      "description": "Group non-major npm updates into one PR per repo per run instead of one PR per package. Non-major already automerges on green CI below, so this only changes how many times the full CI gate reruns for routine bumps, not the review/merge behaviour. Comes before the dev-tooling/pnpm rules below so those more specific groups still win (later packageRules override earlier ones).",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "npm-non-major"
+    },
+    {
+      "description": "Group non-major Go module updates into one PR per repo per run, same rationale as npm-non-major.",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "gomod-non-major"
+    },
+    {
+      "description": "Group non-major GitHub Actions digest/version updates into one PR per repo per run, same rationale as npm-non-major.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "github-actions-non-major"
+    },
+    {
       "description": "Group the shared toolchain so each repo gets one dev-tooling PR",
       "matchDepNames": [
         "@biomejs/biome",
