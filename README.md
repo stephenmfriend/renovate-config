@@ -59,7 +59,16 @@ Each consuming repo extends it from a one-line `renovate.json`:
   continuously rather than batching into a weekly window.
 - **Grouping** — the shared toolchain (biome, cspell, commitlint, markdownlint,
   remark, lefthook) lands as one `dev-tooling` PR per repo; the Corepack `pnpm`
-  pin is surfaced on its own.
+  pin is surfaced on its own. All other non-major updates are grouped per
+  manager (`npm-non-major`, `gomod-non-major`, `github-actions-non-major`) so a
+  run with several routine bumps in the same ecosystem opens one PR instead of
+  one per package. This was a deliberate fix: on `miise`, 10 unrelated npm
+  bumps were each opening their own PR, and each one re-ran the repo's full
+  build+test CI gate (build, lint, `go test -race ./...`, E2E) even though none
+  of them touched Go. Grouping doesn't change what merges or when — non-major
+  still automerges on green CI below — it only cuts how many times that gate
+  reruns for routine bumps. Majors are intentionally left out of these groups
+  (and ungrouped) so they stay individually reviewable.
 - **`nix: { enabled: false }`** — the nix manager works where `nix` is reliably
   present (self-hosted, local), but the **hosted Mend app installs `nix`
   dynamically via containerbase** and it's documented-flaky for actually writing
