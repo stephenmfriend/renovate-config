@@ -11,6 +11,21 @@
   },
   "packageRules": [
     {
+      "description": "Re-assert the top-level 5-day minimumReleaseAge for npm. config:best-practices extends security:minimumReleaseAgeNpm, which sets minimumReleaseAge to 3 days in a packageRule matching npm datasources — and packageRules are applied after top-level config, so the top-level 5 days above only ever reached non-npm datasources (gomod, terraform, github-actions, docker). Every npm package, including the Corepack packageManager pin, silently soaked for 3 days. That is how pnpm 11.12.0 was adopted at 3.03 days old and then deprecated as broken, taking out the frontend gate. matchUpdateTypes is an explicit allowlist rather than a bare datasource match so that security:minimumReleaseAgeNpm's deliberate minimumReleaseAge:null exemptions for lockFileMaintenance, replacement, and pin still win — a bare match would override those back to 5 days. Security updates are unaffected: vulnerabilityAlerts defaults to minimumReleaseAge:null.",
+      "matchDatasources": ["npm"],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "digest",
+        "pinDigest",
+        "rollback",
+        "bump"
+      ],
+      "minimumReleaseAge": "5 days",
+      "internalChecksFilter": "strict"
+    },
+    {
       "description": "Group non-major npm updates into one PR per repo per run instead of one PR per package. Non-major already automerges on green CI below, so this only changes how many times the full CI gate reruns for routine bumps, not the review/merge behaviour. Comes before the dev-tooling/pnpm rules below so those more specific groups still win (later packageRules override earlier ones).",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],

@@ -28,7 +28,30 @@ Each consuming repo extends it from a one-line `renovate.json`:
   stop silently floating.
 - **`minimumReleaseAge: 5 days`** — never propose a version younger than this.
   Avoids opening PRs for packages so fresh that pnpm 11's supply-chain policy
-  would reject the install (the lefthook 2.1.9 lesson).
+  would reject the install (the lefthook 2.1.9 lesson), and gives a broken
+  release time to be deprecated upstream before the fleet adopts it.
+
+  The top-level setting alone did **not** achieve this for npm, and the npm
+  `packageRules` entry below is what makes it real. `config:best-practices`
+  extends `security:minimumReleaseAgeNpm`, which sets `minimumReleaseAge: 3
+  days` inside a `packageRule` matching npm datasources — and packageRules are
+  applied *after* top-level config, so they override it. For six weeks the
+  top-level 5 days therefore only reached non-npm datasources (gomod, terraform,
+  github-actions, docker) while every npm package — including the Corepack
+  `packageManager` pin — soaked for 3.
+
+  That is not a theoretical gap. pnpm 11.12.0 published 2026-07-11 and Renovate
+  opened its PR 3.03 days later; upstream then deprecated it ("This release is
+  broken. Please upgrade to v11.13.1 or newer"), and the pin broke `pnpm
+  --version` outright, which aborted `task init-worktree` and made the whole
+  frontend gate unrunnable. Under a real 5-day soak Renovate would not have
+  considered 11.12.0 until 2026-07-16, by which point it was already deprecated
+  and 11.13.1 had shipped — and `ignoreDeprecated` (on by default) would have
+  skipped it. Every recent npm bump landed at exactly 3.0x days, which is how
+  the override was spotted.
+
+  Security fixes are **not** delayed by this: `vulnerabilityAlerts` defaults to
+  `minimumReleaseAge: null`.
 - **`constraintsFiltering: strict`** — honour each consumer's declared engine
   constraints (`engines.node`, `packageManager`) when choosing candidate
   versions. Renovate's default is `none`, which would propose pnpm 11 / Node 22+
