@@ -9,6 +9,16 @@
   "nix": {
     "enabled": false
   },
+  "customManagers": [
+    {
+      "description": "Release binaries pinned in tooling/pinned-tools.env, the single version owner that CI and local shells install from through the synced scripts/pinned-tools.sh. Each KEY_VERSION line carries a '# renovate:' annotation; extractVersion is optional because some tools (ripgrep) tag releases without a v prefix.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^tooling/pinned-tools\\.env$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\n[A-Z0-9_]+_VERSION=(?<currentValue>\\S+)"
+      ]
+    }
+  ],
   "packageRules": [
     {
       "description": "Group non-major npm updates into one PR per repo per run instead of one PR per package. Non-major already automerges on green CI below, so this only changes how many times the full CI gate reruns for routine bumps, not the review/merge behaviour. Comes before the dev-tooling/pnpm rules below so those more specific groups still win (later packageRules override earlier ones).",
@@ -27,6 +37,11 @@
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
       "groupName": "github-actions-non-major"
+    },
+    {
+      "description": "Group the pinned release binaries in tooling/pinned-tools.env so one PR moves the set and the repo's gate proves them together.",
+      "matchFileNames": ["tooling/pinned-tools.env"],
+      "groupName": "pinned-tools"
     },
     {
       "description": "Group the shared toolchain so each repo gets one dev-tooling PR",
