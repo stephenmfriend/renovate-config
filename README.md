@@ -69,6 +69,15 @@ Each consuming repo extends it from a one-line `renovate.json`:
   still automerges on green CI below — it only cuts how many times that gate
   reruns for routine bumps. Majors are intentionally left out of these groups
   (and ungrouped) so they stay individually reviewable.
+- **Pinned release binaries** — a regex `customManager` reads
+  `tooling/pinned-tools.env`, the manifest that the dotfiles-synced
+  `scripts/pinned-tools.sh` installs from in CI and local shells. Each
+  `KEY_VERSION=` line sits under a `# renovate: datasource=… depName=…` comment,
+  with an optional `extractVersion=` for tools whose tags carry a `v` prefix.
+  All of a repo's pins land as one `pinned-tools` PR, so its gate proves the
+  set together. A consumer must not define its own manager for this file:
+  Renovate concatenates `customManagers` from presets, so a local copy would
+  extract every tool twice.
 - **`nix: { enabled: false }`** — the nix manager works where `nix` is reliably
   present (self-hosted, local), but the **hosted Mend app installs `nix`
   dynamically via containerbase** and it's documented-flaky for actually writing
