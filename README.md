@@ -69,6 +69,14 @@ Each consuming repo extends it from a one-line `renovate.json`:
   still automerges on green CI below — it only cuts how many times that gate
   reruns for routine bumps. Majors are intentionally left out of these groups
   (and ungrouped) so they stay individually reviewable.
+- **`customManagers:biomeVersions`** — Renovate's built-in preset that bumps
+  the `$schema` URL version in `biome.json`/`biome.jsonc`. Without it, Renovate
+  moves `@biomejs/biome` in `package.json` but leaves the schema URL behind, and
+  biome reports a schema/CLI mismatch after every bump (the fleet had drifted
+  from 2.3.8 to 2.6.7 across repos). It reports the dependency as
+  `@biomejs/biome`, so the schema bump joins the same `dev-tooling` PR as the
+  package bump. Consumers must not also extend it (see the concatenation note
+  under pinned release binaries).
 - **Pinned release binaries** — a regex `customManager` reads
   `tooling/pinned-tools.env`, the manifest that the dotfiles-synced
   `scripts/pinned-tools.sh` installs from in CI and local shells. Each
